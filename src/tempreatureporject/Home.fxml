@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXToolbar?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+  <AnchorPane id="AnchorPane" prefHeight="758.0" prefWidth="1140.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tempreatureporject.HomeController">
+    <children>
+            <HBox layoutY="29.0" prefHeight="350.0" prefWidth="1140.0" spacing="10.0">
+               <children>
+                  <LineChart fx:id="CabelChart" prefWidth="400.0" title="Cabel Chart">
+                     <xAxis>
+                        <CategoryAxis fx:id="CabelChartX" side="BOTTOM" />
+                     </xAxis>
+                     <yAxis>
+                        <NumberAxis fx:id="CabelChartY" side="LEFT" />
+                     </yAxis>
+                  </LineChart>
+                  <BarChart fx:id="TemperatureStatisticChart" prefWidth="400.0" title="Temperature Statistic Chart">
+                     <xAxis>
+                        <CategoryAxis fx:id="CurrentChartX" side="BOTTOM" />
+                     </xAxis>
+                     <yAxis>
+                        <NumberAxis fx:id="CurrentChartY" side="LEFT" />
+                     </yAxis>
+                  </BarChart>
+                  <VBox prefHeight="257.0" prefWidth="292.0">
+                     <children>
+                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="23.0" prefWidth="292.0" text="Warning" textAlignment="CENTER" textFill="#dd4b39">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="7.0" top="7.0" />
+                           </VBox.margin>
+                        </Label>
+                        <VBox fx:id="warningsList" prefHeight="476.0" prefWidth="292.0" spacing="10.0" />
+                     </children>
+                     <HBox.margin>
+                        <Insets bottom="25.0" />
+                     </HBox.margin>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </HBox>
+            <Separator layoutX="10.0" layoutY="35.0" prefHeight="4.0" prefWidth="1140.0" />
+            <Label layoutY="5.0" prefHeight="29.0" prefWidth="207.0" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #7387A8;" text="Main Dashboard">
+               <padding>
+                  <Insets left="10.0" />
+               </padding>
+            </Label>
+            <HBox alignment="CENTER" layoutX="10.0" layoutY="383.0" prefHeight="350.0" prefWidth="1140.0" spacing="50.0">
+               <children>
+                  <VBox prefHeight="257.0" prefWidth="292.0">
+                     <children>
+                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="23.0" prefWidth="292.0" text="Logs" textAlignment="CENTER" textFill="GREY">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="7.0" top="7.0" />
+                           </VBox.margin>
+                        </Label>
+                        <VBox fx:id="logsList" prefHeight="476.0" prefWidth="292.0" spacing="10.0" />
+                     </children>
+                     <HBox.margin>
+                        <Insets bottom="25.0" />
+                     </HBox.margin>
+                  </VBox>
+                  <VBox layoutX="10.0" layoutY="20.0" prefHeight="257.0" prefWidth="292.0">
+                     <children>
+                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="23.0" prefWidth="292.0" text="Cabels" textAlignment="CENTER" textFill="GREY">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="7.0" top="7.0" />
+                           </VBox.margin>
+                        </Label>
+                        <FlowPane fx:id="cabelButtons" hgap="20.0" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="305.0" prefWidth="332.0" vgap="20.0">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                           <padding>
+                              <Insets bottom="20.0" left="10.0" right="10.0" top="20.0" />
+                           </padding>
+                        </FlowPane>
+                     </children>
+                  </VBox>
+                  <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="218.0" prefWidth="270.0" style="-fx-background-color: white; -fx-background-radius: 3; -fx-border-color: #3C8DBC; -fx-border-radius: 3; -fx-border-width: 4 0 0 0; -fx-effect: dropshadow(gaussian, rgb(0.0, 0.0, 0.0, 0.15), 6.0, 0.7, 0.0,1.5);">
+                     <children>
+                        <Separator layoutX="13.0" layoutY="70.0" prefHeight="4.0" prefWidth="244.0" />
+                        <Label fx:id="cabelName" layoutX="41.0" layoutY="40.0" prefHeight="17.0" prefWidth="189.0" style="-fx-text-fill: #162E3B; -fx-font-size: 16; -fx-font-weight: bold; -fx-alignment: center;" />
+                        <Separator layoutX="13.0" layoutY="107.0" prefHeight="4.0" prefWidth="244.0" />
+                        <Separator layoutX="14.0" layoutY="144.0" prefHeight="4.0" prefWidth="244.0" />
+                        <Label layoutX="14.0" layoutY="80.0" prefHeight="17.0" prefWidth="94.0" text="Cabel ID">
+                           <font>
+                              <Font name="Roboto Medium" size="14.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="14.0" layoutY="117.0" prefHeight="17.0" prefWidth="94.0" text="Cabel Type">
+                           <font>
+                              <Font name="Roboto Medium" size="14.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="14.0" layoutY="154.0" prefHeight="17.0" prefWidth="94.0" text="Cabel location">
+                           <font>
+                              <Font name="Roboto Medium" size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="CabelIDValue" alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutX="81.0" layoutY="80.0" prefHeight="20.0" prefWidth="175.0" textFill="#918dbc">
+                           <font>
+                              <Font name="Roboto Medium" size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="cabelTypeValue" alignment="CENTER_RIGHT" layoutX="93.0" layoutY="117.0" prefHeight="20.0" prefWidth="163.0" textFill="#918dbc">
+                           <font>
+                              <Font name="Roboto Medium" size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="CabelLocationValue" alignment="CENTER_RIGHT" layoutX="109.0" layoutY="154.0" prefHeight="20.0" prefWidth="147.0" textFill="#918dbc">
+                           <font>
+                              <Font name="Roboto Medium" size="14.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <HBox.margin>
+                        <Insets top="-110.0" />
+                     </HBox.margin>
+                  </AnchorPane>
+               </children>
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </HBox>
+      
+      
+   </children>
+</AnchorPane>

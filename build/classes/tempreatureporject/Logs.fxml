@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="AnchorPane" prefHeight="758.0" prefWidth="1140.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tempreatureporject.LogsController">
+   <children>
+      <Label layoutY="5.0" prefHeight="29.0" prefWidth="207.0" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #7387A8;" text="Logs">
+         <padding>
+            <Insets left="10.0" />
+         </padding>
+      </Label>
+      <Separator layoutX="10.0" layoutY="35.0" prefHeight="4.0" prefWidth="1140.0" />
+        <TableView fx:id="logsTabelData" layoutX="10.0" layoutY="45.0" prefHeight="698.0" prefWidth="1130.0" stylesheets="@custom.css">
+            <columns>
+               <TableColumn fx:id="logId" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="ID" />
+               <TableColumn fx:id="logName" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="Name" />
+               <TableColumn fx:id="logType" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="Type" />
+            <TableColumn fx:id="logDescription" maxWidth="-Infinity" minWidth="530.0" prefWidth="530.0" text="Description" />
+            </columns>
+<!--            <columnResizePolicy>
+               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>-->
+    </TableView>
+   </children>
+</AnchorPane>
