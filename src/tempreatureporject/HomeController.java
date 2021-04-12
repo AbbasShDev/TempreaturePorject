@@ -13,6 +13,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ResourceBundle;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -37,7 +40,7 @@ import javafx.scene.text.Font;
  *
  * @author danml
  */
-public class HomeController implements Initializable, DBInfo {
+public class HomeController implements Initializable, DBInfo, ExecutorService {
 
     @FXML
     private LineChart<CategoryAxis, NumberAxis> CabelChart;
@@ -90,6 +93,8 @@ public class HomeController implements Initializable, DBInfo {
 
     private int activeCabelId;
 
+    final int WINDOW_SIZE = 10;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -112,39 +117,57 @@ public class HomeController implements Initializable, DBInfo {
 
     private void setCabelChartData() {
 
-        CabelChart.getData().clear();
+        // put dummy data onto graph per second
+        scheduledExecutorServiceChart.scheduleAtFixedRate(() -> {
+            // get a random integer between 0-10
+            Integer random = ThreadLocalRandom.current().nextInt(10);
 
-        CabelChartY.setAutoRanging(false);
-        CabelChartY.setTickUnit(20);
+            // Update the chart
+            Platform.runLater(() -> {
+                // get current time
 
-        XYChart.Series CabelChartSeries = new XYChart.Series();
+                CabelChart.getData().clear();
+                CabelChart.setAnimated(false);
 
-        CabelChartSeries.getData().clear();
+                CabelChartY.setAutoRanging(false);
+                CabelChartY.setTickUnit(20);
 
-        Connection con = getConnection();
+                XYChart.Series CabelChartSeries = new XYChart.Series();
 
-        String query = "SELECT *, DATE_FORMAT(time, '%H:%i') hours_minutes FROM `temperatures` "
-                + "WHERE DATE(time) = DATE(NOW()) "
-                + "AND cable_id = " + this.activeCabelId;
-        Statement st;
-        ResultSet rs;
+                CabelChartSeries.getData().clear();
 
-        try {
+                Connection con = getConnection();
 
-            st = con.createStatement();
-            rs = st.executeQuery(query);
+                String query = "SELECT *, DATE_FORMAT(time, '%H:%i') hours_minutes FROM `temperatures` "
+                        + "WHERE DATE(time) = DATE(NOW()) "
+                        + "AND cable_id = " + this.activeCabelId + " "
+                        + "ORDER BY time ASC";
+                Statement st;
+                ResultSet rs;
 
-            while (rs.next()) {
-                //populating the series with data
-                CabelChartSeries.setName("Cable temperature today");
-                CabelChartSeries.getData().addAll(new XYChart.Data(rs.getString("hours_minutes"), Integer.parseInt(rs.getString("measurement"))));
-            }
+                try {
 
-            con.close();
-            CabelChart.getData().add(CabelChartSeries);
-        } catch (SQLException e) {
-            alert.show("Error", e.getMessage(), AlertType.ERROR);
-        }
+                    st = con.createStatement();
+                    rs = st.executeQuery(query);
+
+                    while (rs.next()) {
+                        //populating the series with data
+                        CabelChartSeries.setName("Cable temperature today");
+                        CabelChartSeries.getData().addAll(new XYChart.Data(rs.getString("hours_minutes"), Integer.parseInt(rs.getString("measurement"))));
+                    }
+
+                    con.close();
+                    CabelChart.getData().add(CabelChartSeries);
+                } catch (SQLException e) {
+                    alert.show("Error", e.getMessage(), AlertType.ERROR);
+                }
+
+                //resize the chart line when the data is large
+                if (CabelChartSeries.getData().size() > WINDOW_SIZE) {
+                    CabelChartSeries.getData().remove(0);
+                }
+            });
+        }, 0, 1, TimeUnit.SECONDS);
 
     }
 
@@ -234,35 +257,45 @@ public class HomeController implements Initializable, DBInfo {
 
     private void setLastRecordedTemp() {
 
-        Connection con = getConnection();
+        // Update last temp per second
+        scheduledExecutorServiceLastTemp.scheduleAtFixedRate(() -> {
+            // get a random integer between 0-10
+            Integer random = ThreadLocalRandom.current().nextInt(10);
 
-        String query = "SELECT * FROM `temperatures` "
-                + "WHERE cable_id = " + this.activeCabelId + " "
-                + "ORDER BY time DESC "
-                + "LIMIT 1";
-        Statement st;
-        ResultSet rs;
+            // Update the chart
+            Platform.runLater(() -> {
+                Connection con = getConnection();
 
-        try {
+                String query = "SELECT * FROM `temperatures` "
+                        + "WHERE cable_id = " + this.activeCabelId + " "
+                        + "ORDER BY time DESC "
+                        + "LIMIT 1";
+                Statement st;
+                ResultSet rs;
 
-            st = con.createStatement();
-            rs = st.executeQuery(query);
+                try {
 
-            while (rs.next()) {
+                    st = con.createStatement();
+                    rs = st.executeQuery(query);
 
-                lastRecordedTemp.setText("");
-                lastRecordedTempDate.setText("");
-                lastRecordedTempTime.setText("");;
+                    while (rs.next()) {
 
-                lastRecordedTemp.setText(rs.getString("measurement") + "°");
-                lastRecordedTempDate.setText(rs.getDate("time").toString());
-                lastRecordedTempTime.setText(rs.getTime("time").toString());
-            }
+                        lastRecordedTemp.setText("");
+                        lastRecordedTempDate.setText("");
+                        lastRecordedTempTime.setText("");;
 
-            con.close();
-        } catch (SQLException e) {
-            alert.show("Error", e.getMessage(), AlertType.ERROR);
-        }
+                        lastRecordedTemp.setText(rs.getString("measurement") + "°");
+                        lastRecordedTempDate.setText(rs.getDate("time").toString());
+                        lastRecordedTempTime.setText(rs.getTime("time").toString());
+                    }
+
+                    con.close();
+                } catch (SQLException e) {
+                    alert.show("Error", e.getMessage(), AlertType.ERROR);
+                }
+
+            });
+        }, 0, 1, TimeUnit.SECONDS);
 
     }
 

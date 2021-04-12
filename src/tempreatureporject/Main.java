@@ -15,7 +15,7 @@ import javafx.stage.Stage;
  *
  * @author danml
  */
-public class Main extends Application {
+public class Main extends Application implements ExecutorService {
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -32,6 +32,13 @@ public class Main extends Application {
      */
     public static void main(String[] args) {
         launch(args);
+    }
+
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+        scheduledExecutorServiceChart.shutdownNow();
+        scheduledExecutorServiceLastTemp.shutdownNow();
     }
 
 }
