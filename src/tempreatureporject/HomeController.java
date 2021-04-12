@@ -42,8 +42,6 @@ public class HomeController implements Initializable, DBInfo {
     @FXML
     private LineChart<CategoryAxis, NumberAxis> CabelChart;
 
-    XYChart.Series CabelChartSeries = new XYChart.Series();
-
     @FXML
     private CategoryAxis CabelChartX;
 
@@ -63,7 +61,13 @@ public class HomeController implements Initializable, DBInfo {
     private VBox warningsList;
 
     @FXML
-    private VBox logsList;
+    private Label lastRecordedTemp;
+
+    @FXML
+    private Label lastRecordedTempDate;
+
+    @FXML
+    private Label lastRecordedTempTime;
 
     @FXML
     private Label cabelName;
@@ -89,21 +93,33 @@ public class HomeController implements Initializable, DBInfo {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
-        this.activeCabelId = 1;
+        loadCabeleData(1);
 
-        setTemperatureStatisticCharttData();
+    }
+
+    private void loadCabeleData(int cabelId) {
+
+        this.activeCabelId = cabelId;
+
         setCabelChartData();
+        setTemperatureStatisticCharttData();
         addToWarningsList();
-        addToLogsList();
-        setCabelInfo();
+        setLastRecordedTemp();
         addCabelsButtons();
+        setCabelInfo();
 
     }
 
     private void setCabelChartData() {
 
+        CabelChart.getData().clear();
+
         CabelChartY.setAutoRanging(false);
         CabelChartY.setTickUnit(20);
+
+        XYChart.Series CabelChartSeries = new XYChart.Series();
+
+        CabelChartSeries.getData().clear();
 
         Connection con = getConnection();
 
@@ -125,7 +141,6 @@ public class HomeController implements Initializable, DBInfo {
             }
 
             con.close();
-            CabelChart.getData().clear();
             CabelChart.getData().add(CabelChartSeries);
         } catch (SQLException e) {
             alert.show("Error", e.getMessage(), AlertType.ERROR);
@@ -135,7 +150,11 @@ public class HomeController implements Initializable, DBInfo {
 
     private void setTemperatureStatisticCharttData() {
 
-        XYChart.Series series = new XYChart.Series();
+        TemperatureStatisticChart.getData().clear();
+
+        XYChart.Series TemperatureSeries = new XYChart.Series();
+
+        TemperatureSeries.getData().clear();
 
         Connection con = getConnection();
         String query = "SELECT cable_id, DATE(time) date, ROUND(AVG(measurement), 2) day_avg_temp  "
@@ -155,46 +174,20 @@ public class HomeController implements Initializable, DBInfo {
             while (rs.next()) {
 
                 //populating the series with data
-                series.setName("Cable daily average temperature over past week");
-                series.getData().add(new XYChart.Data(rs.getDate("date").toString(), rs.getDouble("day_avg_temp")));
+                TemperatureSeries.setName("Cable daily average temperature over past week");
+                TemperatureSeries.getData().add(new XYChart.Data(rs.getDate("date").toString(), rs.getDouble("day_avg_temp")));
             }
             con.close();
-            TemperatureStatisticChart.getData().clear();
-            TemperatureStatisticChart.getData().add(series);
+            TemperatureStatisticChart.getData().add(TemperatureSeries);
         } catch (SQLException e) {
             alert.show("Error", e.getMessage(), AlertType.ERROR);
         }
 
-//        //populating the series with data
-//        series.setName("Min");
-//        series.getData().add(new XYChart.Data("Hour", 40));
-//        series.getData().add(new XYChart.Data("Day", 70));
-//        series.getData().add(new XYChart.Data("Week", 50));
-//        series.getData().add(new XYChart.Data("Mounth", 30));
-//        TemperatureStatisticChart.getData().add(series);
-//
-//        XYChart.Series series1 = new XYChart.Series();
-//
-//        //populating the series with data
-//        series1.setName("Averge");
-//        series1.getData().add(new XYChart.Data("Hour", 50));
-//        series1.getData().add(new XYChart.Data("Day", 90));
-//        series1.getData().add(new XYChart.Data("Week", 60));
-//        series1.getData().add(new XYChart.Data("Mounth", 60));
-//        TemperatureStatisticChart.getData().add(series1);
-//
-//        XYChart.Series series2 = new XYChart.Series();
-//
-//        //populating the series with data
-//        series2.setName("Max");
-//        series2.getData().add(new XYChart.Data("Hour", 60));
-//        series2.getData().add(new XYChart.Data("Day", 100));
-//        series2.getData().add(new XYChart.Data("Week", 80));
-//        series2.getData().add(new XYChart.Data("Mounth", 70));
-//        TemperatureStatisticChart.getData().add(series2);
     }
 
     private void addToWarningsList() {
+
+        warningsList.getChildren().clear();
 
         Label label = new Label("First warning");
 
@@ -239,49 +232,86 @@ public class HomeController implements Initializable, DBInfo {
         warningsList.getChildren().add(label3);
     }
 
-    private void addToLogsList() {
+    private void setLastRecordedTemp() {
 
-        Label label = new Label("First log");
+        Connection con = getConnection();
 
-        label.setPrefSize(465, 20);
+        String query = "SELECT * FROM `temperatures` "
+                + "WHERE cable_id = " + this.activeCabelId + " "
+                + "ORDER BY time DESC "
+                + "LIMIT 1";
+        Statement st;
+        ResultSet rs;
 
-        label.setPadding(new Insets(3, 0, 3, 15));
+        try {
 
-        label.setFont(new Font("Arial", 12));
+            st = con.createStatement();
+            rs = st.executeQuery(query);
 
-        label.setTextFill(Color.WHITE);
+            while (rs.next()) {
 
-        label.setBackground(new Background(new BackgroundFill(Color.web(("0x808080")), new CornerRadii(4), Insets.EMPTY)));
+                lastRecordedTemp.setText("");
+                lastRecordedTempDate.setText("");
+                lastRecordedTempTime.setText("");;
 
-        logsList.getChildren().add(label);
+                lastRecordedTemp.setText(rs.getString("measurement") + "°");
+                lastRecordedTempDate.setText(rs.getDate("time").toString());
+                lastRecordedTempTime.setText(rs.getTime("time").toString());
+            }
 
-        Label label2 = new Label("Second log");
+            con.close();
+        } catch (SQLException e) {
+            alert.show("Error", e.getMessage(), AlertType.ERROR);
+        }
 
-        label2.setPrefSize(465, 20);
+    }
 
-        label2.setPadding(new Insets(3, 0, 3, 15));
+    public void addCabelsButtons() {
 
-        label2.setFont(new Font("Arial", 12));
+        cabelButtons.getChildren().clear();
 
-        label2.setTextFill(Color.WHITE);
+        Connection con = getConnection();
 
-        label2.setBackground(new Background(new BackgroundFill(Color.web(("0x808080")), new CornerRadii(4), Insets.EMPTY)));
+        String query = "SELECT * FROM `cables`";
+        Statement st;
+        ResultSet rs;
 
-        logsList.getChildren().add(label2);
+        try {
 
-        Label label3 = new Label("Third log");
+            st = con.createStatement();
+            rs = st.executeQuery(query);
 
-        label3.setPrefSize(465, 20);
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String stringId = Integer.toString(id);
 
-        label3.setPadding(new Insets(3, 0, 3, 15));
+                JFXButton button = new JFXButton();
 
-        label3.setFont(new Font("Arial", 12));
+                button.setPrefWidth(90);
+                button.setPrefHeight(30);
 
-        label3.setTextFill(Color.WHITE);
+                button.setText("Cabel-" + stringId);
 
-        label3.setBackground(new Background(new BackgroundFill(Color.web(("0x808080")), new CornerRadii(4), Insets.EMPTY)));
+                button.setFont(new Font("Roboto", 14));
 
-        logsList.getChildren().add(label3);
+                button.setTextFill(Color.WHITE);
+                button.setStyle("-fx-background-color: #00A65A");
+
+                if (id == this.activeCabelId) {
+                    button.setStyle("-fx-background-color: #808080");
+                } else {
+                    button.setStyle("-fx-background-color: #00A65A");
+                }
+
+                button.setOnAction(e -> this.loadCabeleData(id));
+
+                cabelButtons.getChildren().add(button);
+            }
+
+            con.close();
+        } catch (SQLException e) {
+            alert.show("Error", e.getMessage(), AlertType.ERROR);
+        }
     }
 
     public void setCabelInfo() {
@@ -313,100 +343,6 @@ public class HomeController implements Initializable, DBInfo {
         } catch (SQLException e) {
             alert.show("Error", e.getMessage(), AlertType.ERROR);
         }
-
-    }
-
-    public void addCabelsButtons() {
-
-        Connection con = getConnection();
-
-        String query = "SELECT * FROM `cables`";
-        Statement st;
-        ResultSet rs;
-
-        try {
-
-            st = con.createStatement();
-            rs = st.executeQuery(query);
-
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String stringId = Integer.toString(id);
-
-                JFXButton button = new JFXButton();
-
-                button.setPrefWidth(90);
-                button.setPrefHeight(30);
-
-                button.setText("Cabel-" + stringId);
-
-                button.setFont(new Font("Roboto", 14));
-
-                button.setTextFill(Color.WHITE);
-                button.setStyle("-fx-background-color: #00A65A");
-
-                button.setOnAction(e -> this.loadCabeleData(id));
-
-                cabelButtons.getChildren().add(button);
-            }
-
-            con.close();
-        } catch (SQLException e) {
-            alert.show("Error", e.getMessage(), AlertType.ERROR);
-        }
-
-//        JFXButton button = new JFXButton();
-//
-//        button.setPrefWidth(90);
-//        button.setPrefHeight(30);
-//
-//        button.setText("Cabel1");
-//
-//        button.setFont(new Font("Roboto", 14));
-//
-//        button.setTextFill(Color.WHITE);
-//        button.setStyle("-fx-background-color: #00A65A");
-//
-//        cabelButtons.getChildren().add(button);
-//
-//        JFXButton butto2 = new JFXButton();
-//
-//        butto2.setPrefWidth(90);
-//        butto2.setPrefHeight(30);
-//
-//        butto2.setText("Cabel2");
-//
-//        butto2.setFont(new Font("Roboto", 14));
-//
-//        butto2.setTextFill(Color.WHITE);
-//        butto2.setStyle("-fx-background-color: #00A65A");
-//
-//        cabelButtons.getChildren().add(butto2);
-//
-//        JFXButton button3 = new JFXButton();
-//
-//        button3.setPrefWidth(90);
-//        button3.setPrefHeight(30);
-//
-//        button3.setText("Cabel3");
-//
-//        button3.setFont(new Font("Roboto", 14));
-//
-//        button3.setTextFill(Color.WHITE);
-//        button3.setStyle("-fx-background-color: #00A65A");
-//
-//        cabelButtons.getChildren().add(button3);
-    }
-
-    private void loadCabeleData(int cabelId) {
-        this.activeCabelId = cabelId;
-
-        setTemperatureStatisticCharttData();
-        CabelChartSeries.getData().clear();
-        setCabelChartData();
-        addToWarningsList();
-        addToLogsList();
-        setCabelInfo();
 
     }
 
