@@ -113,14 +113,11 @@ public class HomeController implements Initializable, DBInfo, ExecutorService, A
 
     private void setCabelChartData() {
 
-        // put dummy data onto graph per second
+        // put data onto graph per second
         scheduledExecutorServiceChart.scheduleAtFixedRate(() -> {
-            // get a random integer between 0-10
-            Integer random = ThreadLocalRandom.current().nextInt(10);
 
             // Update the chart
             Platform.runLater(() -> {
-                // get current time
 
                 CabelChart.getData().clear();
                 CabelChart.setAnimated(false);
@@ -208,8 +205,6 @@ public class HomeController implements Initializable, DBInfo, ExecutorService, A
 
         // Update warnings list per second
         scheduledExecutorServiceWarnings.scheduleAtFixedRate(() -> {
-            // get a random integer between 0-10
-            Integer random = ThreadLocalRandom.current().nextInt(10);
 
             // Update the chart
             Platform.runLater(() -> {
@@ -260,8 +255,6 @@ public class HomeController implements Initializable, DBInfo, ExecutorService, A
 
         // Update last temp per second
         scheduledExecutorServiceLastTemp.scheduleAtFixedRate(() -> {
-            // get a random integer between 0-10
-            Integer random = ThreadLocalRandom.current().nextInt(10);
 
             // Update the chart
             Platform.runLater(() -> {
@@ -329,13 +322,23 @@ public class HomeController implements Initializable, DBInfo, ExecutorService, A
                 button.setFont(new Font("Roboto", 14));
 
                 button.setTextFill(Color.WHITE);
-                button.setStyle("-fx-background-color: #00A65A");
 
-                if (id == activeCable.getActiveCabelId()) {
-                    button.setStyle("-fx-background-color: #808080");
-                } else {
-                    button.setStyle("-fx-background-color: #00A65A");
-                }
+                // Dettect which cable button is active
+                scheduledExecutorServiceSetActiveBtnStyle.scheduleAtFixedRate(() -> {
+
+                    // Update the the buttons style
+                    Platform.runLater(() -> {
+
+                        if (id == activeCable.getActiveCabelId()) {
+                            button.setStyle("-fx-background-color: #808080");
+                            button.setDisable(true);
+                        } else {
+                            button.setStyle("-fx-background-color: #00A65A");
+                            button.setDisable(false);
+                        }
+
+                    });
+                }, 0, 1, TimeUnit.SECONDS);
 
                 button.setOnAction(e -> this.loadCabeleData(id));
 

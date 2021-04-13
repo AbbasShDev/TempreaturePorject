@@ -42,6 +42,7 @@ public class Main extends Application implements ExecutorService {
         scheduledExecutorServiceWarnings.shutdownNow();
         scheduledExecutorServiceWarningsList.shutdownNow();
         scheduledExecutorServiceLogsList.shutdownNow();
+        scheduledExecutorServiceSetActiveBtnStyle.shutdownNow();
     }
 
 }

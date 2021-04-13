@@ -5,6 +5,7 @@
  */
 package tempreatureporject;
 
+import com.jfoenix.controls.JFXButton;
 import com.mysql.jdbc.Connection;
 import java.net.URL;
 import java.sql.DriverManager;
@@ -23,10 +24,14 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import static tempreatureporject.ActiveCableInterface.activeCable;
 import static tempreatureporject.DBInfo.DB_NAME_WITH_ENCODING;
 import static tempreatureporject.DBInfo.PASSWORD;
 import static tempreatureporject.DBInfo.USER;
+import static tempreatureporject.ExecutorService.scheduledExecutorServiceSetActiveBtnStyle;
 import static tempreatureporject.ExecutorService.scheduledExecutorServiceWarnings;
 
 /**
@@ -50,13 +55,27 @@ public class LogsController implements Initializable, ExecutorService, ActiveCab
     @FXML
     private TableColumn<LogsModel, String> logDescription;
 
+    @FXML
+    private HBox cabelButtons;
+
     private SpecialAlert alert = new SpecialAlert();
 
     private ObservableList<LogsModel> logsModels = FXCollections.observableArrayList();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
         loadLogs();
+        addCabelsButtons();
+
+    }
+
+    public void loadCabeleData(int cabelId) {
+
+        activeCable.setActiveCabelId(cabelId);
+
+        loadLogs();
+        addCabelsButtons();
     }
 
     private void loadLogs() {
@@ -102,6 +121,65 @@ public class LogsController implements Initializable, ExecutorService, ActiveCab
         logDescription.setCellValueFactory(new PropertyValueFactory<LogsModel, String>("logDescription"));
         logTime.setCellValueFactory(new PropertyValueFactory<LogsModel, String>("logTime"));
         logsTabelData.setItems(logsModels);
+    }
+
+    public void addCabelsButtons() {
+
+        cabelButtons.getChildren().clear();
+
+        Connection con = getConnection();
+
+        String query = "SELECT * FROM `cables`";
+        Statement st;
+        ResultSet rs;
+
+        try {
+
+            st = con.createStatement();
+            rs = st.executeQuery(query);
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String stringId = Integer.toString(id);
+
+                JFXButton button = new JFXButton();
+
+                button.setPrefWidth(90);
+                button.setPrefHeight(30);
+
+                button.setText("Cabel-" + stringId);
+
+                button.setFont(new Font("Roboto", 14));
+
+                button.setTextFill(Color.WHITE);
+
+                // Dettect which cable button is active
+                scheduledExecutorServiceSetActiveBtnStyle.scheduleAtFixedRate(() -> {
+
+                    // Update the the buttons style
+                    Platform.runLater(() -> {
+
+                        if (id == activeCable.getActiveCabelId()) {
+                            button.setStyle("-fx-background-color: #808080");
+                            button.setDisable(true);
+                        } else {
+                            button.setStyle("-fx-background-color: #2D75E8");
+                            button.setDisable(false);
+                        }
+
+                    });
+                }, 0, 1, TimeUnit.SECONDS);
+
+                button.setOnAction(e -> this.loadCabeleData(id));
+
+                cabelButtons.getChildren().add(button);
+            }
+
+            con.close();
+        } catch (SQLException e) {
+            alert.show("Error", e.getMessage(), Alert.AlertType.ERROR);
+        }
+
     }
 
     private Connection getConnection() {

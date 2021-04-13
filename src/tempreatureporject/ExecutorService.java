@@ -24,4 +24,6 @@ public interface ExecutorService {
 
     public ScheduledExecutorService scheduledExecutorServiceLogsList = Executors.newSingleThreadScheduledExecutor();
 
+    public ScheduledExecutorService scheduledExecutorServiceSetActiveBtnStyle = Executors.newSingleThreadScheduledExecutor();
+
 }
