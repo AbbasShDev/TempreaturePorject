@@ -15,8 +15,13 @@ import java.util.concurrent.ScheduledExecutorService;
 public interface ExecutorService {
 
     public ScheduledExecutorService scheduledExecutorServiceChart = Executors.newSingleThreadScheduledExecutor();
-    ;
+
     public ScheduledExecutorService scheduledExecutorServiceLastTemp = Executors.newSingleThreadScheduledExecutor();
-;
+
+    public ScheduledExecutorService scheduledExecutorServiceWarnings = Executors.newSingleThreadScheduledExecutor();
+
+    public ScheduledExecutorService scheduledExecutorServiceWarningsList = Executors.newSingleThreadScheduledExecutor();
+
+    public ScheduledExecutorService scheduledExecutorServiceLogsList = Executors.newSingleThreadScheduledExecutor();
 
 }

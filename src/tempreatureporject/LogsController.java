@@ -5,21 +5,35 @@
  */
 package tempreatureporject;
 
+import com.mysql.jdbc.Connection;
 import java.net.URL;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ResourceBundle;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import static tempreatureporject.ActiveCableInterface.activeCable;
+import static tempreatureporject.DBInfo.DB_NAME_WITH_ENCODING;
+import static tempreatureporject.DBInfo.PASSWORD;
+import static tempreatureporject.DBInfo.USER;
+import static tempreatureporject.ExecutorService.scheduledExecutorServiceWarnings;
 
 /**
  *
  * @author danml
  */
-public class LogsController implements Initializable {
+public class LogsController implements Initializable, ExecutorService, ActiveCableInterface {
 
     @FXML
     private TableView<LogsModel> logsTabelData;
@@ -28,7 +42,7 @@ public class LogsController implements Initializable {
     private TableColumn<LogsModel, Integer> logId;
 
     @FXML
-    private TableColumn<LogsModel, String> logName;
+    private TableColumn<LogsModel, String> logTime;
 
     @FXML
     private TableColumn<LogsModel, String> logType;
@@ -36,29 +50,74 @@ public class LogsController implements Initializable {
     @FXML
     private TableColumn<LogsModel, String> logDescription;
 
+    private SpecialAlert alert = new SpecialAlert();
+
+    private ObservableList<LogsModel> logsModels = FXCollections.observableArrayList();
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         loadLogs();
     }
 
-    private ObservableList<LogsModel> logsModels = FXCollections.observableArrayList(
-            new LogsModel(100001, "Name info 1", "Type info 1", "Description info goes here 1"),
-            new LogsModel(100002, "Name info 2", "Type info 2", "Description info goes here 2"),
-            new LogsModel(100003, "Name info 3", "Type info 3", "Description info goes here 3"),
-            new LogsModel(100004, "Name info 4", "Type info 4", "Description info goes here 4"),
-            new LogsModel(100005, "Name info 5", "Type info 5", "Description info goes here 5"),
-            new LogsModel(100006, "Name info 6", "Type info 6", "Description info goes here 6"),
-            new LogsModel(100007, "Name info 7", "Type info 7", "Description info goes here 7"),
-            new LogsModel(100008, "Name info 8", "Type info 8", "Description info goes here 8"),
-            new LogsModel(100009, "Name info 9", "Type info 9", "Description info goes here 9")
-    );
-
     private void loadLogs() {
+
+        // Update warnings list per second
+        scheduledExecutorServiceLogsList.scheduleAtFixedRate(() -> {
+            // get a random integer between 0-10
+            Integer random = ThreadLocalRandom.current().nextInt(10);
+
+            // Update the chart
+            Platform.runLater(() -> {
+
+                logsModels.clear();
+
+                Connection con = getConnection();
+
+                String query = "SELECT * FROM `logs` "
+                        + "WHERE cable_id = " + activeCable.getActiveCabelId() + " "
+                        + "ORDER BY time DESC ";
+                Statement st;
+                ResultSet rs;
+
+                try {
+
+                    st = con.createStatement();
+                    rs = st.executeQuery(query);
+
+                    while (rs.next()) {
+
+                        logsModels.add(new LogsModel(rs.getInt("id"), rs.getString("type"), rs.getString("description"), rs.getTimestamp("time").toString()));
+                    }
+
+                    con.close();
+                } catch (SQLException e) {
+                    alert.show("Error", e.getMessage(), Alert.AlertType.ERROR);
+                }
+
+            });
+        }, 0, 1, TimeUnit.SECONDS);
+
         logId.setCellValueFactory(new PropertyValueFactory<LogsModel, Integer>("logId"));
-        logName.setCellValueFactory(new PropertyValueFactory<LogsModel, String>("logName"));
         logType.setCellValueFactory(new PropertyValueFactory<LogsModel, String>("logType"));
         logDescription.setCellValueFactory(new PropertyValueFactory<LogsModel, String>("logDescription"));
+        logTime.setCellValueFactory(new PropertyValueFactory<LogsModel, String>("logTime"));
         logsTabelData.setItems(logsModels);
+    }
+
+    private Connection getConnection() {
+        Connection con;
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            con = (Connection) DriverManager.getConnection(DB_NAME_WITH_ENCODING, USER, PASSWORD);
+            return con;
+        } catch (ClassNotFoundException ex) {
+            alert.show("Connection Error", ex.getMessage(), Alert.AlertType.ERROR);
+            return null;
+        } catch (SQLException e) {
+            alert.show("Connection Error", e.getMessage(), Alert.AlertType.ERROR);
+            return null;
+        }
     }
 
 }

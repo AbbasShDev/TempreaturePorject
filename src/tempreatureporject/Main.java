@@ -39,6 +39,9 @@ public class Main extends Application implements ExecutorService {
         super.stop();
         scheduledExecutorServiceChart.shutdownNow();
         scheduledExecutorServiceLastTemp.shutdownNow();
+        scheduledExecutorServiceWarnings.shutdownNow();
+        scheduledExecutorServiceWarningsList.shutdownNow();
+        scheduledExecutorServiceLogsList.shutdownNow();
     }
 
 }

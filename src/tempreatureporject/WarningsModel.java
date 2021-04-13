@@ -15,15 +15,15 @@ import javafx.beans.property.SimpleStringProperty;
 public class WarningsModel {
 
     private SimpleIntegerProperty warningId;
-    private SimpleStringProperty warningName;
-    private SimpleStringProperty warningType;
+    private SimpleStringProperty warningLevel;
     private SimpleStringProperty warningDescription;
+    private SimpleStringProperty warningTime;
 
-    public WarningsModel(Integer warningId, String warningName, String warningType, String warningDescription) {
+    public WarningsModel(Integer warningId, String warningLevel, String warningDescription, String warningTime) {
         this.warningId = new SimpleIntegerProperty(warningId);
-        this.warningName = new SimpleStringProperty(warningName);
-        this.warningType = new SimpleStringProperty(warningType);
+        this.warningLevel = new SimpleStringProperty(warningLevel);
         this.warningDescription = new SimpleStringProperty(warningDescription);
+        this.warningTime = new SimpleStringProperty(warningTime);
     }
 
     public int getWarningId() {
@@ -34,20 +34,12 @@ public class WarningsModel {
         this.warningId = new SimpleIntegerProperty(warningId);
     }
 
-    public String getWarningName() {
-        return warningName.get();
+    public String getWarningLevel() {
+        return warningLevel.get();
     }
 
-    public void setWarningName(String warningName) {
-        this.warningName = new SimpleStringProperty(warningName);
-    }
-
-    public String getWarningType() {
-        return warningType.get();
-    }
-
-    public void setWarningType(String warningType) {
-        this.warningType = new SimpleStringProperty(warningType);
+    public void setWarningLevel(String warningLevel) {
+        this.warningLevel = new SimpleStringProperty(warningLevel);
     }
 
     public String getWarningDescription() {
@@ -56,6 +48,14 @@ public class WarningsModel {
 
     public void setWarningDescription(String warningDescription) {
         this.warningDescription = new SimpleStringProperty(warningDescription);
+    }
+
+    public String getWarningTime() {
+        return warningTime.get();
+    }
+
+    public void setwWrningTime(String warningTime) {
+        this.warningTime = new SimpleStringProperty(warningTime);
     }
 
 }

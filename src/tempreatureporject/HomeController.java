@@ -40,7 +40,7 @@ import javafx.scene.text.Font;
  *
  * @author danml
  */
-public class HomeController implements Initializable, DBInfo, ExecutorService {
+public class HomeController implements Initializable, DBInfo, ExecutorService, ActiveCableInterface {
 
     @FXML
     private LineChart<CategoryAxis, NumberAxis> CabelChart;
@@ -89,10 +89,6 @@ public class HomeController implements Initializable, DBInfo, ExecutorService {
 
     SpecialAlert alert = new SpecialAlert();
 
-    ObservableList<Temperature> data = FXCollections.observableArrayList();
-
-    private int activeCabelId;
-
     final int WINDOW_SIZE = 10;
 
     @Override
@@ -104,7 +100,7 @@ public class HomeController implements Initializable, DBInfo, ExecutorService {
 
     private void loadCabeleData(int cabelId) {
 
-        this.activeCabelId = cabelId;
+        activeCable.setActiveCabelId(cabelId);
 
         setCabelChartData();
         setTemperatureStatisticCharttData();
@@ -140,7 +136,7 @@ public class HomeController implements Initializable, DBInfo, ExecutorService {
 
                 String query = "SELECT *, DATE_FORMAT(time, '%H:%i') hours_minutes FROM `temperatures` "
                         + "WHERE DATE(time) = DATE(NOW()) "
-                        + "AND cable_id = " + this.activeCabelId + " "
+                        + "AND cable_id = " + activeCable.getActiveCabelId() + " "
                         + "ORDER BY time ASC";
                 Statement st;
                 ResultSet rs;
@@ -183,7 +179,7 @@ public class HomeController implements Initializable, DBInfo, ExecutorService {
         String query = "SELECT cable_id, DATE(time) date, ROUND(AVG(measurement), 2) day_avg_temp  "
                 + "FROM `temperatures` "
                 + "WHERE DATE(time) <= DATE(NOW()) AND DATE(time) > DATE_SUB(Date(NOW()), INTERVAL 7 DAY) "
-                + "AND cable_id = " + this.activeCabelId + " "
+                + "AND cable_id = " + activeCable.getActiveCabelId() + " "
                 + "GROUP by date, cable_id "
                 + "ORDER BY `date` ASC";
         Statement st;
@@ -210,49 +206,54 @@ public class HomeController implements Initializable, DBInfo, ExecutorService {
 
     private void addToWarningsList() {
 
-        warningsList.getChildren().clear();
+        // Update warnings list per second
+        scheduledExecutorServiceWarnings.scheduleAtFixedRate(() -> {
+            // get a random integer between 0-10
+            Integer random = ThreadLocalRandom.current().nextInt(10);
 
-        Label label = new Label("First warning");
+            // Update the chart
+            Platform.runLater(() -> {
 
-        label.setPrefSize(465, 20);
+                warningsList.getChildren().clear();
 
-        label.setPadding(new Insets(3, 0, 3, 15));
+                Connection con = getConnection();
 
-        label.setFont(new Font("Arial", 12));
+                String query = "SELECT * FROM `warnings` "
+                        + "WHERE cable_id = " + activeCable.getActiveCabelId() + " "
+                        + "ORDER BY time DESC ";
+                Statement st;
+                ResultSet rs;
 
-        label.setTextFill(Color.WHITE);
+                try {
 
-        label.setBackground(new Background(new BackgroundFill(Color.web(("0xDD4B39")), new CornerRadii(4), Insets.EMPTY)));
+                    st = con.createStatement();
+                    rs = st.executeQuery(query);
 
-        warningsList.getChildren().add(label);
+                    while (rs.next()) {
+                        Label label = new Label(rs.getString("description"));
 
-        Label label2 = new Label("Second warning");
+                        label.setPrefSize(465, 20);
 
-        label2.setPrefSize(465, 20);
+                        label.setPadding(new Insets(3, 0, 3, 15));
 
-        label2.setPadding(new Insets(3, 0, 3, 15));
+                        label.setFont(new Font("Arial", 12));
 
-        label2.setFont(new Font("Arial", 12));
+                        label.setTextFill(Color.WHITE);
 
-        label2.setTextFill(Color.WHITE);
+                        label.setBackground(new Background(new BackgroundFill(Color.web(("0xDD4B39")), new CornerRadii(4), Insets.EMPTY)));
 
-        label2.setBackground(new Background(new BackgroundFill(Color.web(("0xDD4B39")), new CornerRadii(4), Insets.EMPTY)));
+                        warningsList.getChildren().add(label);
 
-        warningsList.getChildren().add(label2);
+                    }
 
-        Label label3 = new Label("Third warning");
+                    con.close();
+                } catch (SQLException e) {
+                    alert.show("Error", e.getMessage(), AlertType.ERROR);
+                }
 
-        label3.setPrefSize(465, 20);
+            });
+        }, 0, 1, TimeUnit.SECONDS);
 
-        label3.setPadding(new Insets(3, 0, 3, 15));
-
-        label3.setFont(new Font("Arial", 12));
-
-        label3.setTextFill(Color.WHITE);
-
-        label3.setBackground(new Background(new BackgroundFill(Color.web(("0xDD4B39")), new CornerRadii(4), Insets.EMPTY)));
-
-        warningsList.getChildren().add(label3);
     }
 
     private void setLastRecordedTemp() {
@@ -267,7 +268,7 @@ public class HomeController implements Initializable, DBInfo, ExecutorService {
                 Connection con = getConnection();
 
                 String query = "SELECT * FROM `temperatures` "
-                        + "WHERE cable_id = " + this.activeCabelId + " "
+                        + "WHERE cable_id = " + activeCable.getActiveCabelId() + " "
                         + "ORDER BY time DESC "
                         + "LIMIT 1";
                 Statement st;
@@ -330,7 +331,7 @@ public class HomeController implements Initializable, DBInfo, ExecutorService {
                 button.setTextFill(Color.WHITE);
                 button.setStyle("-fx-background-color: #00A65A");
 
-                if (id == this.activeCabelId) {
+                if (id == activeCable.getActiveCabelId()) {
                     button.setStyle("-fx-background-color: #808080");
                 } else {
                     button.setStyle("-fx-background-color: #00A65A");
@@ -351,7 +352,7 @@ public class HomeController implements Initializable, DBInfo, ExecutorService {
 
         Connection con = getConnection();
 
-        String query = "SELECT * FROM `cables` WHERE id = " + this.activeCabelId;
+        String query = "SELECT * FROM `cables` WHERE id = " + activeCable.getActiveCabelId();
         Statement st;
         ResultSet rs;
 

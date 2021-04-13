@@ -15,15 +15,15 @@ import javafx.beans.property.SimpleStringProperty;
 public class LogsModel {
 
     private SimpleIntegerProperty logId;
-    private SimpleStringProperty logName;
+    private SimpleStringProperty logTime;
     private SimpleStringProperty logType;
     private SimpleStringProperty logDescription;
 
-    public LogsModel(Integer logId, String logName, String logType, String logDescription) {
+    public LogsModel(Integer logId, String logType, String logDescription, String logTime) {
         this.logId = new SimpleIntegerProperty(logId);
-        this.logName = new SimpleStringProperty(logName);
         this.logType = new SimpleStringProperty(logType);
         this.logDescription = new SimpleStringProperty(logDescription);
+        this.logTime = new SimpleStringProperty(logTime);
     }
 
     public int getLogId() {
@@ -32,14 +32,6 @@ public class LogsModel {
 
     public void setLogId(int logId) {
         this.logId = new SimpleIntegerProperty(logId);
-    }
-
-    public String getLogName() {
-        return logName.get();
-    }
-
-    public void setLogName(String logName) {
-        this.logName = new SimpleStringProperty(logName);
     }
 
     public String getLogType() {
@@ -56,6 +48,14 @@ public class LogsModel {
 
     public void setLogDescription(String logDescription) {
         this.logDescription = new SimpleStringProperty(logDescription);
+    }
+
+    public String getLogTime() {
+        return logTime.get();
+    }
+
+    public void setLogTime(String logTime) {
+        this.logTime = new SimpleStringProperty(logTime);
     }
 
 }
