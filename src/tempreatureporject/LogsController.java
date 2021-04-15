@@ -50,7 +50,7 @@ public class LogsController implements Initializable, ExecutorService, ActiveCab
     private TableColumn<LogsModel, String> logTime;
 
     @FXML
-    private TableColumn<LogsModel, String> logType;
+    private TableColumn<LogsModel, Integer> logCableId;
 
     @FXML
     private TableColumn<LogsModel, String> logDescription;
@@ -105,7 +105,7 @@ public class LogsController implements Initializable, ExecutorService, ActiveCab
 
                     while (rs.next()) {
 
-                        logsModels.add(new LogsModel(rs.getInt("id"), rs.getString("type"), rs.getString("description"), rs.getTimestamp("time").toString()));
+                        logsModels.add(new LogsModel(rs.getInt("id"), rs.getInt("cable_id"), rs.getString("description"), rs.getTimestamp("time").toString()));
                     }
 
                     con.close();
@@ -117,7 +117,7 @@ public class LogsController implements Initializable, ExecutorService, ActiveCab
         }, 0, 1, TimeUnit.SECONDS);
 
         logId.setCellValueFactory(new PropertyValueFactory<LogsModel, Integer>("logId"));
-        logType.setCellValueFactory(new PropertyValueFactory<LogsModel, String>("logType"));
+        logCableId.setCellValueFactory(new PropertyValueFactory<LogsModel, Integer>("logCableId"));
         logDescription.setCellValueFactory(new PropertyValueFactory<LogsModel, String>("logDescription"));
         logTime.setCellValueFactory(new PropertyValueFactory<LogsModel, String>("logTime"));
         logsTabelData.setItems(logsModels);

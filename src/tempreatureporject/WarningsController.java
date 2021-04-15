@@ -48,7 +48,7 @@ public class WarningsController implements Initializable, ExecutorService, Activ
     private TableColumn<WarningsModel, Integer> warningId;
 
     @FXML
-    private TableColumn<WarningsModel, String> warningLevel;
+    private TableColumn<WarningsModel, Integer> warningCableId;
 
     @FXML
     private TableColumn<WarningsModel, String> warningTime;
@@ -109,7 +109,7 @@ public class WarningsController implements Initializable, ExecutorService, Activ
 
                     while (rs.next()) {
 
-                        warningsModels.add(new WarningsModel(rs.getInt("id"), rs.getString("level"), rs.getString("description"), rs.getTimestamp("time").toString()));
+                        warningsModels.add(new WarningsModel(rs.getInt("id"), rs.getInt("cable_id"), rs.getString("description"), rs.getTimestamp("time").toString()));
                     }
 
                     con.close();
@@ -121,7 +121,7 @@ public class WarningsController implements Initializable, ExecutorService, Activ
         }, 0, 1, TimeUnit.SECONDS);
 
         warningId.setCellValueFactory(new PropertyValueFactory<WarningsModel, Integer>("warningId"));
-        warningLevel.setCellValueFactory(new PropertyValueFactory<WarningsModel, String>("warningLevel"));
+        warningCableId.setCellValueFactory(new PropertyValueFactory<WarningsModel, Integer>("warningCableId"));
         warningsDescription.setCellValueFactory(new PropertyValueFactory<WarningsModel, String>("warningDescription"));
         warningTime.setCellValueFactory(new PropertyValueFactory<WarningsModel, String>("warningTime"));
         warningsTabelData.setItems(warningsModels);

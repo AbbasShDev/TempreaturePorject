@@ -9,6 +9,7 @@ import com.jfoenix.controls.JFXButton;
 import com.mysql.jdbc.Connection;
 import java.net.URL;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -144,6 +145,7 @@ public class HomeController implements Initializable, DBInfo, ExecutorService, A
                     rs = st.executeQuery(query);
 
                     while (rs.next()) {
+
                         //populating the series with data
                         CabelChartSeries.setName("Cable temperature today");
                         CabelChartSeries.getData().addAll(new XYChart.Data(rs.getString("hours_minutes"), Integer.parseInt(rs.getString("measurement"))));
@@ -215,7 +217,9 @@ public class HomeController implements Initializable, DBInfo, ExecutorService, A
 
                 String query = "SELECT * FROM `warnings` "
                         + "WHERE cable_id = " + activeCable.getActiveCabelId() + " "
-                        + "ORDER BY time DESC ";
+                        + "AND DATE(time) = CURDATE() "
+                        + "ORDER BY time DESC "
+                        + "limit 8";
                 Statement st;
                 ResultSet rs;
 
@@ -262,6 +266,7 @@ public class HomeController implements Initializable, DBInfo, ExecutorService, A
 
                 String query = "SELECT * FROM `temperatures` "
                         + "WHERE cable_id = " + activeCable.getActiveCabelId() + " "
+                        + "AND DATE(time) = CURDATE() "
                         + "ORDER BY time DESC "
                         + "LIMIT 1";
                 Statement st;
@@ -281,6 +286,58 @@ public class HomeController implements Initializable, DBInfo, ExecutorService, A
                         lastRecordedTemp.setText(rs.getString("measurement") + "°");
                         lastRecordedTempDate.setText(rs.getDate("time").toString());
                         lastRecordedTempTime.setText(rs.getTime("time").toString());
+
+                        // detect temperature above normal
+                        if (Integer.parseInt(rs.getString("measurement")) > 90) {
+
+                            //check if warming is exist
+                            String queryWarningIsExist = "SELECT * FROM `warnings` "
+                                    + "WHERE cable_id = " + activeCable.getActiveCabelId() + " "
+                                    + "AND temperature_id = " + rs.getInt("id") + " "
+                                    + "LIMIT 1";
+                            Statement stWarningIsExist = con.createStatement();
+                            ResultSet rsWarningIsExist = stWarningIsExist.executeQuery(queryWarningIsExist);
+
+                            // if warming not exist insert to database
+                            if (!rsWarningIsExist.next()) {
+
+                                PreparedStatement psWarning;
+
+                                psWarning = con.prepareStatement("INSERT INTO warnings(cable_id, temperature_id, description) values(?,?,?)");
+
+                                psWarning.setInt(1, activeCable.getActiveCabelId());
+                                psWarning.setInt(2, rs.getInt("id"));
+                                psWarning.setString(3, "High temperature ( " + rs.getString("measurement") + "°" + " ), above 90");
+
+                                psWarning.executeUpdate();
+
+                            }
+
+                        }
+
+                        //add to logs table whenever a new temperature added
+                        //check if the log is already exist
+                        String queryLogIsExist = "SELECT * FROM `logs` "
+                                + "WHERE cable_id = " + activeCable.getActiveCabelId() + " "
+                                + "AND temperature_id = " + rs.getInt("id") + " "
+                                + "LIMIT 1";
+                        Statement stLogIsExist = con.createStatement();
+                        ResultSet rsLogIsExist = stLogIsExist.executeQuery(queryLogIsExist);
+
+                        // if warming not exist insert to database
+                        if (!rsLogIsExist.next()) {
+
+                            PreparedStatement psLog;
+
+                            psLog = con.prepareStatement("INSERT INTO logs(cable_id, temperature_id, description) values(?,?,?)");
+
+                            psLog.setInt(1, activeCable.getActiveCabelId());
+                            psLog.setInt(2, rs.getInt("id"));
+                            psLog.setString(3, "A new temperature added " + "( " + rs.getString("measurement") + "°" + ") ");
+
+                            psLog.executeUpdate();
+
+                        }
                     }
 
                     con.close();

@@ -27,7 +27,7 @@
         <TableView fx:id="logsTabelData" layoutX="10.0" layoutY="95.0" prefHeight="648.0" prefWidth="1130.0" stylesheets="@custom.css">
             <columns>
                <TableColumn fx:id="logId" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="ID" />
-               <TableColumn fx:id="logType" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="Type" />
+               <TableColumn fx:id="logCableId" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="Cable ID" />
             <TableColumn fx:id="logDescription" maxWidth="-Infinity" minWidth="530.0" prefWidth="530.0" text="Description" />
                <TableColumn fx:id="logTime" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="Time" />
             </columns>

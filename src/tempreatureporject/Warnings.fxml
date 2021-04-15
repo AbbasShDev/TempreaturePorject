@@ -26,7 +26,7 @@
         <TableView fx:id="warningsTabelData" layoutX="10.0" layoutY="95.0" prefHeight="648.0" prefWidth="1130.0" stylesheets="@customWaarnings.css">
             <columns>
                <TableColumn fx:id="warningId" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="ID" />
-               <TableColumn fx:id="warningLevel" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="Level" />
+               <TableColumn fx:id="warningCableId" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="Cable ID" />
             <TableColumn fx:id="warningsDescription" maxWidth="-Infinity" minWidth="530.0" prefWidth="530.0" text="Description" />
             <TableColumn fx:id="warningTime" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="Time" />
             </columns>

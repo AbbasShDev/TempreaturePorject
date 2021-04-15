@@ -1,27 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package tempreatureporject;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-/**
- *
- * @author abbasalshaqaq
- */
 public class LogsModel {
 
     private SimpleIntegerProperty logId;
     private SimpleStringProperty logTime;
-    private SimpleStringProperty logType;
+    private SimpleIntegerProperty logCableId;
     private SimpleStringProperty logDescription;
 
-    public LogsModel(Integer logId, String logType, String logDescription, String logTime) {
+    public LogsModel(Integer logId, Integer logCableId, String logDescription, String logTime) {
         this.logId = new SimpleIntegerProperty(logId);
-        this.logType = new SimpleStringProperty(logType);
+        this.logCableId = new SimpleIntegerProperty(logCableId);
         this.logDescription = new SimpleStringProperty(logDescription);
         this.logTime = new SimpleStringProperty(logTime);
     }
@@ -34,12 +25,12 @@ public class LogsModel {
         this.logId = new SimpleIntegerProperty(logId);
     }
 
-    public String getLogType() {
-        return logType.get();
+    public int getLogCableId() {
+        return logCableId.get();
     }
 
-    public void setLogType(String logType) {
-        this.logType = new SimpleStringProperty(logType);
+    public void setLogCableId(int logCableId) {
+        this.logCableId = new SimpleIntegerProperty(logCableId);
     }
 
     public String getLogDescription() {

@@ -15,13 +15,13 @@ import javafx.beans.property.SimpleStringProperty;
 public class WarningsModel {
 
     private SimpleIntegerProperty warningId;
-    private SimpleStringProperty warningLevel;
+    private SimpleIntegerProperty warningCableId;
     private SimpleStringProperty warningDescription;
     private SimpleStringProperty warningTime;
 
-    public WarningsModel(Integer warningId, String warningLevel, String warningDescription, String warningTime) {
+    public WarningsModel(Integer warningId, Integer warningCableId, String warningDescription, String warningTime) {
         this.warningId = new SimpleIntegerProperty(warningId);
-        this.warningLevel = new SimpleStringProperty(warningLevel);
+        this.warningCableId = new SimpleIntegerProperty(warningCableId);
         this.warningDescription = new SimpleStringProperty(warningDescription);
         this.warningTime = new SimpleStringProperty(warningTime);
     }
@@ -34,12 +34,12 @@ public class WarningsModel {
         this.warningId = new SimpleIntegerProperty(warningId);
     }
 
-    public String getWarningLevel() {
-        return warningLevel.get();
+    public int getWarningCableId() {
+        return warningCableId.get();
     }
 
-    public void setWarningLevel(String warningLevel) {
-        this.warningLevel = new SimpleStringProperty(warningLevel);
+    public void setWarningCableId(int warningCableId) {
+        this.warningCableId = new SimpleIntegerProperty(warningCableId);
     }
 
     public String getWarningDescription() {
